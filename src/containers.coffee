@@ -71,7 +71,7 @@ streamContainerEvents = (since) ->
         delete startDelays[containerId]
 
       # Wait before emitting "start", in case this is an intermediate container.
-      startDelays[containerId] = setTimeout didStart, 100
+      startDelays[containerId] = setTimeout didStart, 1000
       return
 
     actions.rename = (containerId, attrs) ->
