@@ -96,8 +96,17 @@ streamLogs = (container, since = defaultSince) ->
     streams[containerId] = stream
 
     stream.on "data", (data) ->
-      time = data.slice(8, 38).toString()
-      return if since > new Date(time).getTime()
+      date = data.slice(8, 38).toString()
+      time = new Date(date).getTime()
+
+      # Errors have no timestamp
+      if isNaN time
+        container.error = data.toString()
+        console.error "(#{container.name}) " + container.error
+        return
+
+      # Millisecond precision for `since`
+      return if since > time
 
       type = data[0].toString()
       body = data.slice(38).toString().trim()
@@ -106,7 +115,7 @@ streamLogs = (container, since = defaultSince) ->
         then JSON.parse body
         else {log: body}
 
-      json.time = time
+      json.time = date
       json.stream = streamTypes[type]
 
       if container.buffered
