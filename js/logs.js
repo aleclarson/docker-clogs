@@ -113,9 +113,15 @@ streamLogs = function(container, since) {
   }).then(function(stream) {
     streams[containerId] = stream;
     stream.on("data", function(data) {
-      var body, json, time, type;
-      time = data.slice(8, 38).toString();
-      if (since > new Date(time).getTime()) {
+      var body, date, json, time, type;
+      date = data.slice(8, 38).toString();
+      time = new Date(date).getTime();
+      if (isNaN(time)) {
+        container.error = data.toString();
+        console.error(("(" + container.name + ") ") + container.error);
+        return;
+      }
+      if (since > time) {
         return;
       }
       type = data[0].toString();
@@ -123,7 +129,7 @@ streamLogs = function(container, since) {
       json = body[0] === "{" ? JSON.parse(body) : {
         log: body
       };
-      json.time = time;
+      json.time = date;
       json.stream = streamTypes[type];
       if (container.buffered) {
         return container.push(json);
@@ -136,7 +142,9 @@ streamLogs = function(container, since) {
       if (container.buffered) {
         container.flush();
       }
-      return retryStream(container);
+      if (!container.error) {
+        return retryStream(container);
+      }
     });
     return stream.on("error", function(error) {
       DEBUG && console.log(("(" + container.name + ") Log stream failed:\n  ") + error.stack.replace(/\n/g, "\n  "));

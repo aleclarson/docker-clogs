@@ -85,7 +85,7 @@ streamContainerEvents = function(since) {
         emit("start", containers[containerId]);
         return delete startDelays[containerId];
       };
-      startDelays[containerId] = setTimeout(didStart, 100);
+      startDelays[containerId] = setTimeout(didStart, 1000);
     };
     actions.rename = function(containerId, attrs) {
       var container;
