@@ -15,7 +15,7 @@ if fs.isFile "/adapter.js"
 # Shutdown if no adapter or HTTPS_URL (and not in DEBUG mode)
 else unless HTTPS_URL or DEBUG
   console.warn "Must mount /adapter.js or define HTTPS_URL environment variable!"
-  process.exit 1
+  process.exit()
 
 global.request = require "./request"
 global.containers = require("./containers").start()

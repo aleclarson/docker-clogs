@@ -119,7 +119,12 @@ streamLogs = (container, since = defaultSince) ->
       retryStream container
 
     stream.on "error", (error) ->
+      DEBUG and console.log "(#{container.name}) Log stream failed:\n  " + error.stack.replace /\n/g, "\n  "
       streamLogs container, Date.now()
+
+  .catch (error) ->
+    console.error "(#{container.name}) Failed to start log stream:\n  " + error.stack.replace /\n/g, "\n  "
+    throw error
 
 retryStream = (container) ->
 
@@ -135,3 +140,7 @@ retryStream = (container) ->
 
     if state.Running
       return streamLogs container, new Date(state.FinishedAt).getTime()
+
+  .catch (error) ->
+    console.error "(#{container.name}) Failed to restart log stream:\n  " + error.stack.replace /\n/g, "\n  "
+    throw error

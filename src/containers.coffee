@@ -35,6 +35,13 @@ fetchContainers = ->
         emit "start", containers[containerId] =
           id: containerId
           name: container.Names[0].slice 1
+    DEBUG and console.log "Found containers:\n  " +
+      Object.keys containers
+        .map (containerId) -> containers[containerId].name + " (#{containerId})"
+        .join "\n  "
+
+  .catch (error) ->
+    fatal "Failed to fetch containers", error
 
 streamContainerEvents = (since) ->
   # DEBUG and console.log "Streaming container events since: " + new Date(since).toISOString()
@@ -101,6 +108,17 @@ streamContainerEvents = (since) ->
           actions[event.Action] event.id, event.Actor.Attributes
         # else DEBUG and console.log "(#{attrs.name}) Unhandled container event: " + event.Action
 
-    stream.on "error", ->
+    stream.on "error", (error) ->
+      DEBUG and console.error "Container event stream failed:\n  " + error.stack.replace /\n/g, "\n  "
       streamContainerEvents Date.now()
     return
+
+  .catch (error) ->
+    fatal "Failed to start container event stream", error
+
+fatal = (msg, err) ->
+  console.error msg + ":\n  " +
+    err.stack.split "\n"
+      .slice err.message.split("\n").length
+      .join "\n  "
+  process.exit()

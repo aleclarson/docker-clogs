@@ -37,3 +37,7 @@ fetchStats = (container) ->
 
     if HTTPS_URL
       return request HTTPS_URL, {data: stats}
+
+  .catch (error) ->
+    console.error "(#{container.name}) Failed to fetch container stats:\n  " + error.stack.replace /\n/g, "\n  "
+    throw error
