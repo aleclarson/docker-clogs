@@ -125,7 +125,7 @@ streamLogs = (container, since = defaultSince) ->
     stream.on "end", ->
       DEBUG and console.log "(#{container.name}) Log stream ended: " + new Date().toISOString()
       container.flush() if container.buffered
-      retryStream container
+      retryStream container unless container.error
 
     stream.on "error", (error) ->
       DEBUG and console.log "(#{container.name}) Log stream failed:\n  " + error.stack.replace /\n/g, "\n  "
