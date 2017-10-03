@@ -139,8 +139,12 @@ streamLogs = function(container, since) {
       return retryStream(container);
     });
     return stream.on("error", function(error) {
+      DEBUG && console.log(("(" + container.name + ") Log stream failed:\n  ") + error.stack.replace(/\n/g, "\n  "));
       return streamLogs(container, Date.now());
     });
+  })["catch"](function(error) {
+    console.error(("(" + container.name + ") Failed to start log stream:\n  ") + error.stack.replace(/\n/g, "\n  "));
+    throw error;
   });
 };
 
@@ -157,5 +161,8 @@ retryStream = function(container) {
     if (state.Running) {
       return streamLogs(container, new Date(state.FinishedAt).getTime());
     }
+  })["catch"](function(error) {
+    console.error(("(" + container.name + ") Failed to restart log stream:\n  ") + error.stack.replace(/\n/g, "\n  "));
+    throw error;
   });
 };

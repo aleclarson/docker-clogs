@@ -1,4 +1,4 @@
-var containers, emit, eventId, fetchContainers, i, len, listeners, ref, streamContainerEvents;
+var containers, emit, eventId, fatal, fetchContainers, i, len, listeners, ref, streamContainerEvents;
 
 exports.start = function() {
   fetchContainers().then(function() {
@@ -34,22 +34,23 @@ fetchContainers = function() {
   return request("/containers/json", {
     socket: "/docker.sock"
   }).then(function(res) {
-    var container, containerId, j, len1, ref1, results;
+    var container, containerId, j, len1, ref1;
     ref1 = res.json;
-    results = [];
     for (j = 0, len1 = ref1.length; j < len1; j++) {
       container = ref1[j];
       containerId = container.Id;
       if (!containers[containerId]) {
-        results.push(emit("start", containers[containerId] = {
+        emit("start", containers[containerId] = {
           id: containerId,
           name: container.Names[0].slice(1)
-        }));
-      } else {
-        results.push(void 0);
+        });
       }
     }
-    return results;
+    return DEBUG && console.log("Found containers:\n  " + Object.keys(containers)).map(function(containerId) {
+      return containers[containerId].name + (" (" + containerId + ")");
+    }).join("\n  ");
+  })["catch"](function(error) {
+    return fatal("Failed to fetch containers", error);
   });
 };
 
@@ -120,8 +121,16 @@ streamContainerEvents = function(since) {
         }
       }
     });
-    stream.on("error", function() {
+    stream.on("error", function(error) {
+      DEBUG && console.error("Container event stream failed:\n  " + error.stack.replace(/\n/g, "\n  "));
       return streamContainerEvents(Date.now());
     });
+  })["catch"](function(error) {
+    return fatal("Failed to start container event stream", error);
   });
+};
+
+fatal = function(msg, err) {
+  console.error(msg + ":\n  " + err.stack.split("\n")).slice(err.message.split("\n").length).join("\n  ");
+  return process.exit();
 };

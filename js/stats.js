@@ -44,5 +44,8 @@ fetchStats = function(container) {
         data: stats
       });
     }
+  })["catch"](function(error) {
+    console.error(("(" + container.name + ") Failed to fetch container stats:\n  ") + error.stack.replace(/\n/g, "\n  "));
+    throw error;
   });
 };

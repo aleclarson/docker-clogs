@@ -16,6 +16,9 @@ fs = require("fsx");
 if (fs.isFile("/adapter.js")) {
   DEBUG && console.log("Detected /adapter.js");
   global.adapter = require("/adapter");
+} else if (!(HTTPS_URL || DEBUG)) {
+  console.warn("Must mount /adapter.js or define HTTPS_URL environment variable!");
+  process.exit();
 }
 
 global.request = require("./request");
