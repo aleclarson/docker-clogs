@@ -51,7 +51,8 @@ exports.start = ->
 
 LOG_STDERR = process.env.LOG_STDERR isnt "false"
 LOG_INTERVAL = Number process.env.LOG_INTERVAL or 10
-LOG_DELIMITER = process.env.LOG_DELIMITER or "\r"
+LOG_DELIMITER = process.env.LOG_DELIMITER
+LOG_DELIMITER ?= "\r"
 
 streams = Object.create null
 streamTypes = "stdin stdout stderr".split " "
