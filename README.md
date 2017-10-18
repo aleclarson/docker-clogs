@@ -1,5 +1,5 @@
 
-# docker-clogs v1.0.2
+# docker-clogs v1.0.3
 
 `docker-clogs` gathers container logs/stats, and sends them to a logging service via HTTPS.
 

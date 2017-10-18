@@ -60,7 +60,11 @@ LOG_STDERR = process.env.LOG_STDERR !== "false";
 
 LOG_INTERVAL = Number(process.env.LOG_INTERVAL || 10);
 
-LOG_DELIMITER = process.env.LOG_DELIMITER || "\r";
+LOG_DELIMITER = process.env.LOG_DELIMITER;
+
+if (LOG_DELIMITER == null) {
+  LOG_DELIMITER = "\r";
+}
 
 streams = Object.create(null);
 
